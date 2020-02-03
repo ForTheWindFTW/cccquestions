@@ -90,48 +90,71 @@ public class CCC2013Junior {
     System.out.println(choresDone);
   }
 
+  private static int[] team1;
+  private static int[] team2;
+  private static int desiredTeam;
+  private static int winChance = 0;
+
   static void chancesOfWinning() {
     Scanner reader = new Scanner(System.in);
-    int team = reader.nextInt();
-    int gamesPlayed = reader.nextInt();
-    int[] points = new int[4];
-    int remainingGames = 6 - gamesPlayed;
-    int[] team1Game = new int[gamesPlayed];
-    int[] team2Game = new int[gamesPlayed];
+    desiredTeam = reader.nextInt();
+    int playedCount = reader.nextInt();
+    int[] score = new int[4];
 
-    for(int i = 0; i < gamesPlayed; i++) {
+    Map<Integer, Set<Integer>> teams = new HashMap<>();
+
+    for(int i = 1; i < 4; i++) {
+      teams.putIfAbsent(i, new HashSet<>());
+      for(int j = i + 1; j <= 4; j++) {
+        teams.get(i).add(j);
+      }
+    }
+
+    System.out.println(teams);
+
+    for(int i = 0; i < playedCount; i++) {
+      // REMOVE TEAMS, INCREASE POINTS
       int team1 = reader.nextInt();
       int team2 = reader.nextInt();
       int score1 = reader.nextInt();
       int score2 = reader.nextInt();
 
-      // Set played
-      team1Game[i] = team1;
-      team2Game[i] = team2;
-
-      // Add points to teams
       if(score1 > score2) {
-        points[team1 - 1] += 3;
+        score[team1 - 1] += 3;
       } else if(score1 < score2) {
-        points[team2 - 1] += 3;
+        score[team2 - 1] += 3;
       } else {
-        points[team1 - 1]++;
-        points[team2 - 1]++;
+        score[team1 - 1]++;
+        score[team2 - 1]++;
+      }
+
+      teams.get(team1).remove(team2);
+      if(teams.get(team1).isEmpty()) {
+        teams.remove(team1);
       }
     }
 
-    int[] unplayed = getPossibleGames(team1Game, team2Game);
-    System.out.println("Played team points: " + Arrays.toString(points));
-    System.out.println("Unplayed possible games: " + unplayed);
+    System.out.println("Matches: " + teams);
+    System.out.println("Current Score: " + Arrays.toString(score));
 
-    Iterator iterator = unplayed.keySet().iterator();
-    playGames(unplayed, points, iterator, 0);
-//    for(int i = 1; i < 4; i++) {
-//      int size = unplayed.getOrDefault(i, Set.of()).size();
-//      for(int j = 0; j < size; j++) {
-//
-//      }
-//    }
+    team1 = new int[6 - playedCount];
+    team2 = new int[6 - playedCount];
+    int i = 0;
+    for(Iterator t1 = teams.keySet().iterator(); t1.hasNext();) {
+      int firstTeam = (int)t1.next();
+      for(Iterator t2 = teams.get(firstTeam).iterator(); t2.hasNext(); i++) {
+        int secondTeam = (int)t2.next();
+        team1[i] = firstTeam;
+        team2[i] = secondTeam;
+      }
+    }
+
+    System.out.println("Team 1: " + Arrays.toString(team1));
+    System.out.println("Team 2: " + Arrays.toString(team2));
+
+    playMatch(0, score);
+
+    System.out.println(winChance);
     /**
      * LOGIC PART:
      * If @param team is not highest:
@@ -148,62 +171,38 @@ public class CCC2013Junior {
      */
   }
 
-  static void playGames(Map<Integer, Set<Integer>> possibleMoves, int[] points, Iterator iterator, int winner) {
-    if(iterator.hasNext()) {
-      /**
-       *
-       */
-//      // Next one
-//      int currentTeam1 = (int)iterator.next();
-//      playGames(possibleMoves, points, iterator, 0);
-//      playGames(possibleMoves, points, iterator, 1);
-//      playGames(possibleMoves, points, iterator, 2);
-//      System.out.println(currentTeam1);
+  static void playMatch(int index, int[] currentScore) {
+    if(index != team1.length) {
+      // Team 1 Wins
+      currentScore[team1[index] - 1] += 3;
+      playMatch(index + 1, currentScore);
+      currentScore[team1[index] - 1] -= 3;
 
+      // Team 2 Wins
+      currentScore[team2[index] - 1] += 3;
+      playMatch(index + 1, currentScore);
+      currentScore[team2[index] - 1] -= 3;
+
+      // Teams Tie
+      currentScore[team1[index] - 1]++;
+      currentScore[team2[index] - 1]++;
+      playMatch(index + 1, currentScore);
+      currentScore[team1[index] - 1]--;
+      currentScore[team2[index] - 1]--;
     } else {
-      /**
-       *
-       */
-      // Base case
-      // Try win / tie / other win
-      // +3, 0 / +1, +1 / 0, +3
-//      switch(winner) {
-//        case 0: team1 += 3; break;
-//        case 1: team1++; team2++; break;
-//        case 2: team2 += 3; break;
-//      }
-      System.out.println("NO MORE");
+      for(int i = 1; i <= 4; i++) {
+        if(desiredTeam == i) {
+          continue;
+        }
+        if(currentScore[i - 1] >= currentScore[desiredTeam - 1]) {
+          break;
+        }
+        if(i == 4) {
+          winChance++;
+          System.out.println("INC WIN CHANCE");
+        }
+      }
+      System.out.println(Arrays.toString(currentScore));
     }
-  }
-
-  static int[] getPossibleGames(int[] team1Game, int[] team2Game) {
-//    Map<Integer, Set<Integer>> played = new HashMap<>();
-//    for(int i = 0; i < playHistory.length / 2; i++) {
-//      played.putIfAbsent(i + 1, )
-//    }
-//
-//    int[] possibleMoves;
-//    for(int i = 0; i < playHistory.length / 2; i++) {
-//      possibleMoves.
-//    }
-//    for(int i = 1; i < 4; i++) {
-//      for(int j = i + 1; j <= 4; j++) {
-//        if(playHistory.containsKey(i)) {
-//          // Game played of i team
-//          if(playHistory.get(i).contains(j)) {
-//            // Don't add current
-//          } else {
-//            // Add unplayed game
-//            possibleMoves.putIfAbsent(i, new HashSet<>());
-//            possibleMoves.get(i).add(j);
-//          }
-//        } else {
-//          // No game played of i team
-//          possibleMoves.putIfAbsent(i, new HashSet<>());
-//          possibleMoves.get(i).add(j);
-//        }
-//      }
-//    }
-//    return possibleMoves;
   }
 }
