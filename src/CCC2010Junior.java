@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class CCC2010Junior {
+public class CCC2010Junior {
   static void whatIsNDaddy() {
     int sum = new Scanner(System.in).nextInt();
     int count = 0;
