@@ -1,9 +1,6 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class CCC2010Senior {
   static void computerPurchase() {
@@ -114,6 +111,7 @@ public class CCC2010Senior {
     java.util.Scanner reader = new java.util.Scanner(System.in);
     // Number of pens
     int penCount = reader.nextInt();
+    System.out.println("PenCount: " + penCount);
 
     // Weight of sides (+ 1 is for outside 'pen')
     int[][] penWeights = new int[penCount + 1][];
@@ -146,43 +144,34 @@ public class CCC2010Senior {
         /** ADD BASED ON CONNECTIONS */
         int connectedShape = indexOfContains(penPoints, point1, point2);
         if(connectedShape > -1) {
-          // TODO: Add edge from shape1 to connectedShape (shape2) and remove outside edge
+          System.out.println(i + " connects to: " + connectedShape);
           penAdjList[i].add(connectedShape);
-//          penAdjList[connectedShape]
-          // TODO: Change previous adjList connection to current
-          // TODO: How: look at penPoints?
-          /**
-           * Table of indices for 5-sided:
-           * 0, 1 = 0
-           * 1, 2 = 1
-           * 2, 3 = 2
-           * 3, 4 = 3
-           * 4, 0 = 4
-           */
           int i1 = penPoints[connectedShape].indexOf(point1);
           int i2 = penPoints[connectedShape].indexOf(point2);
           int iMin = Math.min(i1, i2);
           int iMax = Math.max(i1, i2);
-          int iTotal = penPoints[connectedShape].size() - 1;
-          if(iMin == 0 && iMax == iTotal) {
-            penAdjList[connectedShape].set(iTotal, i);
-          } else {
+          if(iMin != 0 && iMax != 1) {
             penAdjList[connectedShape].set(iMin, i);
+          } else {
+            penAdjList[connectedShape].set(0, i);
           }
         } else {
-          // Add edge to outside 'shape'
-          penAdjList[i].add(penCount + 1);
+          /** Connect to outside */
+          penAdjList[i].add(penCount + 10);
         }
         /** ADD BASED ON CONNECTIONS */
       }
 
       // Weight input
-      for(int j = 0; j < sides; j++)
+      for(int j = 0; j < sides; j++) {
         penWeights[i][j] = reader.nextInt();
+      }
     }
 
+    System.out.println("Done");
     System.out.println(Arrays.deepToString(penWeights));
     System.out.println(Arrays.toString(penPoints));
+    System.out.println(Arrays.toString(penAdjList));
 
     /**
      * TEST CODE:
@@ -195,10 +184,23 @@ public class CCC2010Senior {
      */
   }
 
-  static int indexOfContains(List<Integer>[] lists, int ...findValues) {
-    for(int i = 0; i < lists.length; i++)
-      if(lists[i].containsAll(Arrays.asList(findValues)))
-        return i;
+  static int indexOfContains(List<Integer>[] lists, int num1, int num2) {
+//    System.out.println("Check: " + Arrays.toString(lists));
+    int containCount = 0;
+    int iMin = Integer.MAX_VALUE;
+    for(int i = 0; i < lists.length; i++) {
+//      System.out.println(" Current: " + i);
+      if(lists[i] != null && lists[i].containsAll(Arrays.asList(num1, num2))) {
+//        System.out.println("  Success: " + i);
+        containCount++;
+        if(containCount == 2) {
+//          System.out.println("   Returned: " + iMin);
+          return iMin;
+        }
+        iMin = Math.min(iMin, i);
+      }
+    }
+//    System.out.println("  Fail: -1");
     return -1;
   }
 

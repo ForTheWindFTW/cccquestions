@@ -1,13 +1,79 @@
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class Main {
+public class CCC2018Senior {
+  static void voronoiVillages() {
+    Scanner reader = new Scanner(System.in);
+    int villages = reader.nextInt();
+    Set<Integer> villagePositions = new TreeSet<>();
+
+    for(int i = 0; i < villages; i++)
+      villagePositions.add(reader.nextInt());
+
+    Iterator i = villagePositions.iterator();
+    int pos1 = (int)i.next();
+    int pos2 = (int)i.next();
+    int pos3 = (int)i.next();
+    double minSize = (pos3 - pos1) / 2.0;
+    while(i.hasNext()) {
+      pos1 = pos2;
+      pos2 = pos3;
+      pos3 = (int)i.next();
+      minSize = Math.min(minSize, (pos3 - pos1) / 2.0);
+    }
+
+    NumberFormat numberFormat = new DecimalFormat(".#");
+    System.out.println(numberFormat.format(minSize));
+  }
+
+  static void sunflowers() {
+    Scanner reader = new Scanner(System.in);
+    int size = reader.nextInt();
+    int[][] grid = new int[size][size];
+
+    for(int i = 0; i < size; i++)
+      for(int j = 0; j < size; j++)
+        grid[i][j] = reader.nextInt();
+
+    while(!isCorrect(grid))
+      grid = rotateArrays(grid);
+
+    for(int[] i : grid)
+      System.out.println(Arrays.toString(i).replaceAll(",", "").replace("[", "").replaceAll("]", ""));
+  }
+
+  static int[][] rotateArrays(int[][] in) {
+    int size = in.length;
+    int i = size - 1;
+    int[][] out = new int[size][size];
+
+    for(int j = 0; j < size; j++)
+      for(int k = 0; k < size; k++)
+        out[j][k] = in[k][i - j];
+
+    return out;
+  }
+
+  static boolean isCorrect(int[][] grid) {
+    int size = grid.length;
+
+    for(int i = 1; i < size; i++)
+      if(grid[i - 1][0] > grid[i][0] || grid[0][i - 1] > grid[0][i])
+        return false;
+    return true;
+  }
+
   static Tile[][] factory;
   static boolean[][] detectedTiles;
-
-  public static void main(String[] args) {
+  static void roboThieves() {
     Scanner reader = new Scanner(System.in);
     String[] dimensions = reader.nextLine().split(" ", 2);
     int height = Integer.parseInt(dimensions[0]);
@@ -133,17 +199,51 @@ public class Main {
         if(factory[i][j].type == '.')
           System.out.println(factory[i][j].d);
   }
+
+  static void balancedTrees() {
+    Scanner reader = new Scanner(System.in);
+    int weight = reader.nextInt();
+    int balancedTrees = -1;
+
+    System.out.println(balancedTrees);
+
+    /**
+     * TODO: Understand wtf this is
+     * Perfectly Balanced Tree:
+     * - Positive Integer Weight
+     * if Weight is 1
+     *   single node
+     * else
+     *   root node with branches to k, and 2 <= k <= Weight, k must be identical and perfectly balanced themselves
+     *
+     * all K subtrees have same weight, must be max int so sum of weights of k is less or equal to Weight
+     */
+  }
+
+  static void maximumStrategicSavings() {
+    Scanner reader = new Scanner(System.in);
+    int planets = reader.nextInt();
+    int cities = reader.nextInt();
+
+    int[][] flights;
+  }
 }
 
-//class Tile {
-//  int y;
-//  int x;
-//  char type;
-//  int d;
-//  public Tile(int y, int x, char type, int d) {
-//    this.y = y;
-//    this.x = x;
-//    this.type = type;
-//    this.d = d;
-//  }
-//}
+class Tile {
+  int y;
+  int x;
+  char type;
+  int d;
+  public Tile(int y, int x, char type, int d) {
+    this.y = y;
+    this.x = x;
+    this.type = type;
+    this.d = d;
+  }
+
+  @Override
+  public String toString() {
+    return "Tile{" + "y=" + y + ", x=" + x + ", type=" + type + ", d=" + d + '}';
+//    return Integer.toString(d);
+  }
+}
