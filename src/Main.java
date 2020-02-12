@@ -1,139 +1,76 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
 public class Main {
-  static int pens;
-  static int[][] adjMat;
-  static Map<Path, Set<Integer>> connections = new HashMap<>();
-
   public static void main(String[] args) {
-    animalFarm();
-  }
-
-  static void animalFarm() {
-    readRawInput();
-    processInput();
-    int exclude = minimumSpanningTree(pens - 1);
-    int include = minimumSpanningTree(pens);
-
-    System.out.println(Math.min(exclude, include));
-  }
-
-  static void readRawInput() {
     Scanner reader = new Scanner(System.in);
-    pens = reader.nextInt();
+    int row = reader.nextInt();
+    int col = reader.nextInt();
+    int[][] cells = new int[row + 1][col + 1];
 
-    for(int pen = 0; pen < pens; pen++) {
-      final int edges = reader.nextInt();
-      final int[] cornerIDs = new int[edges];
-      final int[] weights = new int[edges];
-      for(int i = 0; i < edges; i++)
-        cornerIDs[i] = reader.nextInt();
-      for(int i = 0; i < edges; i++)
-        weights[i] = reader.nextInt();
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
-      for(int pt = 0; pt < edges; pt++) {
-        // modulo adds the last line from first to last pt
-        int lowPt = Math.min(cornerIDs[pt], cornerIDs[(pt + 1) % edges]);
-        int highPt = Math.max(cornerIDs[pt], cornerIDs[(pt + 1) % edges]);
-        connections.putIfAbsent(new Path(lowPt, highPt, weights[pt]), new HashSet<>());
-        connections.get(new Path(lowPt, highPt, weights[pt])).add(pen);
+    // Input for room cells
+    for (int i = 1; i <= row; i++) {
+      String[] nums = new String[0];
+      try {
+        String a = bufferedReader.readLine();
+        nums = a.split(" ");
+        System.out.println(a);
+      } catch (IOException e) {
+        e.printStackTrace();
       }
+      for (int j = 1; j <= col; j++)
+        cells[i][j] = Integer.parseInt(nums[j - 1]);
     }
 
-    adjMat = new int[pens + 1][pens + 1];
-    /** Possibly Need? */
-    for(int[] i : adjMat)
-      Arrays.fill(i, Integer.MAX_VALUE);
-    /** Possibly Need? */
-  }
+    // Start at top left room and move through cells
+    boolean[][] visited = new boolean[row + 1][col + 1];
+    Queue<Map.Entry<Integer, Integer>> positions = new LinkedList<>();
+    positions.add(new AbstractMap.SimpleEntry(1, 1));
+    visited[1][1] = true;
 
-  static void processInput() {
-    for(Path path : connections.keySet()) {
-//      int start = path.start;
-//      int end = path.end;
-      int weight = path.weight;
-      Set<Integer> shapes = connections.get(path);
-      Iterator intIterator = shapes.iterator();
-      /** if(shapes.size() == 2 && adjMat[start][end] == -1) { */
-      if(shapes.size() == 2) {
-        int shape1 = (int)intIterator.next();
-        int shape2 = (int)intIterator.next();
-        adjMat[shape1][shape2] = weight;
-        adjMat[shape2][shape1] = weight;
-      } else {
-        int shape = (int)intIterator.next();
-        adjMat[shape][pens] = Math.min(adjMat[shape][pens], weight);
-        adjMat[pens][shape] = Math.min(adjMat[shape][pens], weight);
-      }
-    }
-  }
+//    Keep moving until all visitable cells are visited
+    while(!positions.isEmpty()) {
+      Map.Entry entry = positions.element();
+      positions.remove();
+      int r = (int)entry.getKey();
+      int c = (int)entry.getValue();
+      int product = cells[r][c];
 
-  static int minimumSpanningTree(int pens) {
-    Set<Integer> visited = new HashSet<>();
-    int min = 0;
+      System.out.println("Processing: r" + r + " c" + c + ": " + product);
+      for (int factor1 = 1; factor1 <= Math.sqrt(product); factor1++) {
+        // Is a valid factor
+        System.out.println(" Factor1: " + factor1);
+        int factor2 = product / factor1;
+        if(factor1 * factor2 != product) {
+          // Go to next factors if current factors are not actual factors
+          System.out.println("     " + factor1 + " * " + factor2 + " =/= " + product);
+          continue;
+        }
+        System.out.println("  Factor2: " + factor2);
 
-    visited.add(0);
-    while(visited.size() <= pens) {
-      int minWeight = Integer.MAX_VALUE;
-      int minNode = -1;
-      for(int node : visited) {
-        for(int j = 0; j <= pens; j++) {
-          if(adjMat[node][j] < minWeight && !visited.contains(j)) {
-            minWeight = adjMat[node][j];
-            minNode = j;
-          }
+        // Visit factor positions if not visited yet (prevent inf. looping)
+        // and if factor2 (higher) is inside room
+        if(factor1 <= row && factor2 <= col && !visited[factor1][factor2]) {
+          positions.add(new AbstractMap.SimpleEntry(factor1, factor2));
+          visited[factor1][factor2] = true;
+          System.out.println("   ADDED: " + factor1 + ", " + factor2);
+        }
+        if(factor2 <= row && factor1 <= col && !visited[factor2][factor1]) {
+          positions.add(new AbstractMap.SimpleEntry(factor2, factor1));
+          visited[factor2][factor1] = true;
+          System.out.println("   ADDED: " + factor2 + ", " + factor1);
         }
       }
-      visited.add(minNode);
-      min += minWeight;
+
+      if(visited[row][col]) {
+        System.out.println("yes");
+        return;
+      }
     }
-    return min;
+    System.out.println("no");
   }
 }
-
-//class Path {
-//  int start;
-//  int end;
-//  int weight;
-//
-//  Path(int start, int end, int weight) {
-//    this.start = start;
-//    this.end = end;
-//    this.weight = weight;
-//  }
-//
-//  @Override
-//  public boolean equals(Object o) {
-//    if(this == o)
-//      return true;
-//    if(o == null || this.getClass() != o.getClass())
-//      return false;
-//
-//    final Path path = (Path)o;
-//
-//    if(this.start != path.start)
-//      return false;
-//    if(this.end != path.end)
-//      return false;
-//    return this.weight == path.weight;
-//  }
-//
-//  @Override
-//  public int hashCode() {
-//    int result = this.start;
-//    result = 31 * result + this.end;
-//    result = 31 * result + this.weight;
-//    return result;
-//  }
-//
-//  @Override
-//  public String toString() {
-//    return "Path{" + "start=" + start + ", end=" + end + ", weight=" + weight + '}';
-//  }
-//}

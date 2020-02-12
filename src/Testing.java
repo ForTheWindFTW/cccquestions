@@ -4,6 +4,7 @@
 
 public class Testing {
   public static void main(String[] args) {
+    /**
 //    List<Integer> list = new ArrayList<>();
 //    list.addAll(Arrays.asList(0, 5, 3, 2));
 //
@@ -21,7 +22,10 @@ public class Testing {
 //      CCC2018Senior.balancedTrees();
 //      Same here wtf is this
 //      CCC2018Senior.maximumStrategicSavings();
-      CCC2020Practice.animalFarm();
+//      CCC2020Practice.animalFarm();
+      CCC2020SeniorLive.escapeRoom();
+//      CCC2020SeniorLive.searchingForStrings();
     }
+     */
   }
 }
