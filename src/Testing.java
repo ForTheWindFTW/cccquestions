@@ -21,7 +21,7 @@ public class Testing {
 //      CCC2018Senior.balancedTrees();
 //      Same here wtf is this
 //      CCC2018Senior.maximumStrategicSavings();
-
+      CCC2020Practice.animalFarm();
     }
   }
 }
